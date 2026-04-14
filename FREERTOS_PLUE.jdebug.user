@@ -1,0 +1,24 @@
+
+
+
+Breakpoint=/Users/Zhuanz/Documents/FreeRTOS_PLUS/app/main.c:53, State=BP_STATE_ON
+OpenDocument="tasks.c", FilePath="/Users/Zhuanz/Documents/FreeRTOS_PLUS/third_lib/freertos/tasks.c", Line=3683
+OpenDocument="main.c", FilePath="/Users/Zhuanz/Documents/FreeRTOS_PLUS/app/main.c", Line=16
+OpenDocument="FREERTOS_PLUE.jdebug", FilePath="/Users/Zhuanz/Documents/FreeRTOS_PLUS/FREERTOS_PLUE.jdebug", Line=0
+OpenToolbar="File", Floating=0, x=0, y=0
+OpenToolbar="Debug", Floating=0, x=1, y=0
+OpenWindow="Call Stack", DockArea=RIGHT, x=0, y=0, w=891, h=421, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Registers 1", DockArea=RIGHT, x=0, y=1, w=891, h=763, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, FilteredItems=[], RefreshRate=1
+OpenWindow="Memory 1", DockArea=BOTTOM, x=2, y=0, w=1203, h=315, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, EditorAddress=0x20000024
+OpenWindow="Functions", DockArea=LEFT, x=0, y=0, w=300, h=758, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Code Profile", DockArea=LEFT, x=0, y=1, w=300, h=426, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0, GroupByFiles=0, SortRespectsFilters=0, ParentRelativeLoad=0
+OpenWindow="Terminal", DockArea=BOTTOM, x=1, y=0, w=600, h=315, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+OpenWindow="Console", DockArea=BOTTOM, x=0, y=0, w=1203, h=315, FilterBarShown=0, TotalValueBarShown=0, ToolBarShown=0
+SmartViewPlugin="", Page="", Toolbar="Hidden", Window="SmartView 1"
+TableHeader="Functions", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Address";"Size";"#Insts";"Source"], ColWidths=[27;27;27;27;177]
+TableHeader="Call Stack", SortCol="Function", SortOrder="ASCENDING", VisibleCols=["Function";"Stack Frame";"Source";"PC";"Return Address";"Stack Used"], ColWidths=[100;100;100;100;100;391]
+TableHeader="Code Profile", SortCol="File / Function", SortOrder="ASCENDING", VisibleCols=["File / Function";"Source Coverage";"Inst. Coverage";"Run Count";"Fetch Count";"Load"], ColWidths=[1247;106;100;100;100;100]
+TableHeader="Power Sampling", SortCol="None", SortOrder="ASCENDING", VisibleCols=["Index";"Time";"Ch 0"], ColWidths=[100;100;100]
+TableHeader="Registers 1", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Description"], ColWidths=[100;105;686]
+TableHeader="RegisterSelectionDialog", SortCol="None", SortOrder="ASCENDING", VisibleCols=[], ColWidths=[]
+TableHeader="TargetExceptionDialog", SortCol="Name", SortOrder="ASCENDING", VisibleCols=["Name";"Value";"Address";"Description"], ColWidths=[26;26;26;26]

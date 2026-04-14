@@ -1,0 +1,126 @@
+version: "4.1"
+name: stm32f4xx_rtx_gcc
+type: ARM
+deviceName: null
+packDir: null
+srcDirs:
+  - src
+  - inc
+  - driver
+  - app
+  - fireware
+  - uos
+virtualFolder:
+  name: <virtual_root>
+  files: []
+  folders: []
+dependenceList: []
+outDir: build
+miscInfo:
+  uid: 8d76cd9614334b4cf22e0d6ecf32ad66
+targets:
+  Debug:
+    cppPreprocessAttrs:
+      defineList:
+        - STM32F40_41xxx
+        - USE_STDPERIPH_DRIVER
+      incList:
+        - lib/STM32F4xx_StdPeriph_Driver/inc
+        - lib/cmsis/Include
+        - lib/STM32F4xx_StdPeriph_Driver
+        - src
+        - lib/cmsis
+        - lib/CMSIS/RTOS2/Include
+        - lib/CMSIS/RTOS2/RTX/Include
+        - lib/CMSIS/RTOS2/RTX/Config
+        - lib/CMSIS/Core/Include
+        - driver
+        - inc
+        - app/inc
+        - app
+        - third_lib
+        - third_lib/letter_shell
+        - driver/inc
+        - fireware/cmsis/device
+        - fireware/cmsis/core
+        - fireware/driver/inc
+        - fireware/driver/src
+        - uos
+        - uos/src
+        - uos/inc
+      libList: []
+    excludeList:
+      - src/main.c
+      - uos/src/task.c
+      - driver/main.c
+      - third_lib/freertos
+      - third_lib/freertos/portable/port.c
+      - driver/boot.c
+      - third_lib/letter_shell
+      - app/cmd.c
+      - driver/usart.c
+      - driver/key.c
+      - app/rtos.s
+    settings:
+      debugger: cortex-debug
+    toolchain: GCC
+    toolchainConfigMap:
+      GCC:
+        archExtensions: ""
+        cpuType: Cortex-M4
+        floatingPointHardware: single
+        options:
+          version: 5
+          afterBuildTasks: []
+          asm-compiler:
+            ASM_FLAGS: ""
+          beforeBuildTasks: []
+          c/cpp-compiler:
+            CXX_FLAGS: ""
+            C_FLAGS: ""
+            language-c: c11
+            language-cpp: c++11
+            one-elf-section-per-data: true
+            one-elf-section-per-function: true
+            optimization: level-debug
+            warnings: all-warnings
+          global:
+            $float-abi-type: softfp
+            misc-control: --specs=nosys.specs --specs=nano.specs
+            output-debug-info: enable
+          linker:
+            LD_FLAGS: ""
+            LIB_FLAGS: -lm
+            output-format: elf
+            remove-unused-input-sections: true
+        scatterFilePath: STM32F407VGTx_FLASH.ld
+        storageLayout:
+          RAM: []
+          ROM: []
+        useCustomScatterFile: true
+    uploadConfigMap:
+      JLink:
+        baseAddr: ""
+        bin: ""
+        cpuInfo:
+          cpuName: "null"
+          vendor: "null"
+        otherCmds: ""
+        proType: 1
+        speed: 8000
+      OpenOCD:
+        baseAddr: "0x08000000"
+        bin: ""
+        interface: cmsis-dap
+        target: stm32f1x
+      STLink:
+        address: "0x08000000"
+        bin: ""
+        elFile: None
+        optionBytes: .eide/debug.st.option.bytes.ini
+        otherCmds: ""
+        proType: SWD
+        resetMode: default
+        runAfterProgram: true
+        speed: 4000
+    uploader: STLink

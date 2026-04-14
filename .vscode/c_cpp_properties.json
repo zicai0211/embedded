@@ -1,0 +1,27 @@
+{
+  "configurations": [
+    {
+      "name": "STM32",
+      "includePath": [
+        "${workspaceFolder}/**",
+        "${workspaceFolder}/uos/inc/**",
+        "${workspaceFolder}/uos/src/**",
+        "${workspaceFolder}/app/inc/**",
+        "${workspaceFolder}/driver/inc/**",
+        "${workspaceFolder}/inc/**",
+        "${workspaceFolder}/fireware/cmsis/core/**",
+        "${workspaceFolder}/fireware/cmsis/device/**",
+        "${workspaceFolder}/fireware/driver/inc/**"
+      ],
+      "defines": [
+        "STM32F40_41xxx",
+        "USE_STDPERIPH_DRIVER"
+      ],
+      "compilerPath": "/opt/homebrew/bin/arm-none-eabi-gcc",
+      "cStandard": "c11",
+      "cppStandard": "c++14",
+      "intelliSenseMode": "gcc-arm"
+    }
+  ],
+  "version": 4
+}

@@ -1,0 +1,107 @@
+version: "4.1"
+name: boot
+type: ARM
+deviceName: null
+packDir: .pack/Keil/STM32F4xx_DFP.2.14.0
+srcDirs:
+  - driver
+  - fireware
+  - app
+  - build
+  - src
+  - third_lib
+  - uos
+  - inc
+virtualFolder:
+  name: <virtual_root>
+  files:
+    - path: ../driver/bootloader.c
+  folders: []
+dependenceList: []
+outDir: build
+miscInfo:
+  uid: 2c218de47554b649fdfd45ddf92b8dbc
+targets:
+  Debug:
+    cppPreprocessAttrs:
+      defineList: []
+      incList:
+        - app
+        - driver
+        - fireware
+        - src
+        - third_lib
+        - uos
+        - inc
+        - fireware/driver/src
+        - fireware/driver
+        - fireware/cmsis/core
+        - driver/inc
+        - app/inc
+        - fireware/cmsis/device
+      libList: []
+    excludeList:
+      - <virtual_root>/bootloader.c
+      - driver/bootloader.c
+      - app/cmd.c
+    settings: {}
+    toolchain: GCC
+    toolchainConfigMap:
+      GCC:
+        archExtensions: ""
+        cpuType: Cortex-M4
+        floatingPointHardware: single
+        options:
+          version: 5
+          afterBuildTasks: []
+          asm-compiler:
+            ASM_FLAGS: ""
+          beforeBuildTasks: []
+          c/cpp-compiler:
+            CXX_FLAGS: ""
+            C_FLAGS: ""
+            language-c: c11
+            language-cpp: c++11
+            one-elf-section-per-data: true
+            one-elf-section-per-function: true
+            optimization: level-debug
+            warnings: all-warnings
+          global:
+            $float-abi-type: hard
+            misc-control: ""
+            not-use-syscalls: true
+            output-debug-info: enable
+            use-newlib-nano: true
+          linker:
+            $outputTaskExcludes:
+              - .bin
+            LD_FLAGS: ""
+            LIB_FLAGS: -lm
+            output-format: elf
+            remove-unused-input-sections: true
+        scatterFilePath: <YOUR_LINKER_SCRIPT>.lds
+        storageLayout:
+          RAM: []
+          ROM: []
+        useCustomScatterFile: true
+    uploadConfigMap:
+      JLink:
+        baseAddr: ""
+        bin: ""
+        cpuInfo:
+          cpuName: "null"
+          vendor: "null"
+        otherCmds: ""
+        proType: 1
+        speed: 8000
+      STLink:
+        address: "0x08000000"
+        bin: ""
+        elFile: None
+        optionBytes: .eide/debug.st.option.bytes.ini
+        otherCmds: ""
+        proType: SWD
+        resetMode: default
+        runAfterProgram: true
+        speed: 4000
+    uploader: STLink
