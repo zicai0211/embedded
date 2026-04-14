@@ -3,13 +3,17 @@
 
 
 
+
 TCB_T * volatile current_tcb = 0;
 TCB_T * volatile next_tcb = 0;
+static TCB_T idle_task_tcb;
+static uint32_t idle_task_stack[128];
+
 uint32_t task_count = 0;
 static List_t g_ready_list[OS_MAX_PRI];
 static List_t g_delay_list;
 static bool init = false;
-
+volatile uint32_t g_os_tick = 0;
 static void os_sched_init(void)
 {
     list_init(&g_delay_list);
@@ -17,8 +21,17 @@ static void os_sched_init(void)
     {
         list_init(&g_ready_list[i]);
     }
-
 }
+
+static void os_idle_task(void *arg)
+{
+    (void)arg;
+    while (1)
+    {
+        __WFI();   // 或者 nop,进入低功耗等待中断状态，直到有任务需要调度
+    }
+}
+
 static void os_ready_insert(TCB_T *tcb)
 {
     if(tcb == NULL)
@@ -30,7 +43,6 @@ static void os_ready_insert(TCB_T *tcb)
     {
         return;
     }
-    tcb->time_slice = tcb->time_slice_counter;
     list_insert_tail(&g_ready_list[tcb->priority], &tcb->state_list_item);
 }
 static void os_ready_remove(TCB_T *tcb)
@@ -41,7 +53,29 @@ static void os_ready_remove(TCB_T *tcb)
     }
     list_remove(&tcb->state_list_item);
 }
+static void os_context_switch(TCB_T *tcb)
+{
+    if(tcb == NULL || tcb == current_tcb)
+    {
+        return;
+    }
+    next_tcb = tcb;
 
+    SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk; // 触发PendSV中断，进行上下文切换
+    __DSB(); // 数据同步屏障，确保指令执行顺序
+    __ISB(); // 指令同步屏障，确保中断处理完成后再执行后续指令
+
+}
+static void AddToDelayList(TCB_T *tcb,uint32_t ticks){
+    if(tcb == NULL || ticks == 0)
+    {
+        return;
+    }
+    tcb->wake_time = g_os_tick + ticks;
+    tcb->state_list_item.item_value = tcb->wake_time; // 用于有序插入
+    list_remove(&tcb->state_list_item); // 从就绪队列移除
+    list_insert_ordered(&g_delay_list, &tcb->state_list_item); // 插入延迟队列
+}
 /* PendSV Handler: 任务切换的核心 */
 __attribute__((naked)) void port_PendSV_Handler(void)
 {
@@ -154,8 +188,6 @@ int os_task_create(TCB_T *tcb,void (*entry)(void *),void *arg, uint32_t *stack_b
 
     }
 
-
-
     if (priority >= OS_MAX_PRI)
     {
         return -1; // 优先级越界
@@ -174,7 +206,6 @@ int os_task_create(TCB_T *tcb,void (*entry)(void *),void *arg, uint32_t *stack_b
     tcb->state = TASK_READY;
     tcb->wake_time = 0U;
     tcb->time_slice_counter= 10U;
-    tcb->time_slice = tcb->time_slice_counter;
     tcb->state_list_item.owner = tcb;
 
     os_ready_insert(tcb);
@@ -204,38 +235,69 @@ static TCB_T *os_sched_select_next(void)
     return NULL;
 }
 
+static void os_wake_expired_tasks(void)
+{
+    ListItem_t *item;
+    while(!list_is_empty(&g_delay_list))
+    {
+        item = list_get_head(&g_delay_list);
+        if(item ==NULL) break;
+
+        TCB_T *tcb = (TCB_T *)item->owner;
+        if(tcb->wake_time > g_os_tick)
+        {
+            break;
+        }
+        list_remove(&tcb->state_list_item);
+        tcb->state = TASK_READY;
+        os_ready_insert(tcb);
+    }
+}
+static void os_schedule(bool rotate_current)
+{
+    TCB_T *cand;
+    TCB_T *prev = current_tcb;
+
+    if (rotate_current && prev != NULL && prev->state == TASK_RUNNING)
+    {
+        prev->state = TASK_READY;
+        os_ready_remove(prev);
+        os_ready_insert(prev);
+    }
+
+    cand = os_sched_select_next();
+    if (cand == NULL)
+    {
+        return;
+    }
+
+    /* 非轮转抢占路径：旧任务从 RUNNING -> READY（不在这里做队列旋转） */
+    if (!rotate_current && prev != NULL && prev != cand && prev->state == TASK_RUNNING)
+    {
+        prev->state = TASK_READY;
+    }
+
+    cand->state = TASK_RUNNING;
+    os_context_switch(cand);
+}
+
+
 void yield(void)
 {
-    if(current_tcb != NULL && current_tcb->state == TASK_RUNNING)
-    {
-        current_tcb->state = TASK_READY;
-        os_ready_remove(current_tcb);
-        os_ready_insert(current_tcb);
-    }
+    os_schedule(true);
 
-    next_tcb = os_sched_select_next();
-    if (next_tcb == NULL)
-    {
-        if (current_tcb != NULL && current_tcb->state == TASK_READY)
-        {
-            current_tcb->state = TASK_RUNNING;
-        }
-        return;
-    }
-
-    next_tcb->state = TASK_RUNNING;
-    if (next_tcb == current_tcb)
-    {
-        return;
-    }
-
-    SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk; // 触发 PendSV 中断
-    __DSB(); // 确保指令执行完毕
-    __ISB(); // 刷新指令流水线
 }
 
 void os_start(void)
 {
+
+    if(!init)
+    {
+        os_sched_init();
+        init = true;
+    }
+
+    os_task_create(&idle_task_tcb, os_idle_task, NULL, idle_task_stack, 128, 0); // 创建空闲任务，优先级最低
     if (task_count == 0)
     {
         while (1) {}
@@ -245,7 +307,8 @@ void os_start(void)
     next_tcb = current_tcb;
     current_tcb->state = TASK_RUNNING;
     os_tick_init(1000); // 初始化系统滴答定时器，1ms中断一次
-    // os_start_first_task();
+
+
     PortStartFirstTask();
 
     while (1) {}
@@ -257,13 +320,67 @@ void os_tick_init(uint32_t ticks_per_sec)
     SysTick_Config(SystemCoreClock / ticks_per_sec);
 
 }
-volatile uint32_t g_os_tick = 0;
+
 
 void SysTick_Handler(void)
 {
-    if(g_os_tick++ == 5000)// 假设每1000个滴答切换一次任务
+    TCB_T *cur_tcb = current_tcb;
+    TCB_T *next;
+
+    g_os_tick++;
+    os_wake_expired_tasks();
+
+    if(cur_tcb == NULL)
     {
-        g_os_tick = 0;
-        yield(); // 触发任务切换
+        os_schedule(false);
+        return;
     }
+
+    if(cur_tcb->time_slice > 0)
+    {
+        cur_tcb->time_slice--;
+    }
+
+    next = os_sched_select_next();
+    if(next == NULL)
+    {
+        return;
+    }
+
+    // 如果当前任务没有时间片或者有更高优先级的任务就切换
+    if(next->priority > cur_tcb->priority)
+    {
+        os_schedule(false);
+        return;
+    }
+
+    // 时间片用完或者有更高优先级的任务就切换
+    if(next->priority > cur_tcb->priority ||(cur_tcb->priority == next->priority && cur_tcb->time_slice == 0) )
+    {
+        if(cur_tcb->time_slice == 0)
+        {
+            cur_tcb->time_slice = cur_tcb->time_slice_counter; // 重置时间片
+            os_schedule(true); // 同优先级轮转
+        }
+    }
+
+}
+void os_delay(uint32_t ticks)
+{
+    TCB_T *next;
+    if(current_tcb == NULL || ticks == 0)
+    {
+        return;
+    }
+
+    current_tcb->state = TASK_BLOCKED;
+    AddToDelayList(current_tcb, ticks);
+
+    next = os_sched_select_next();
+    if(next == NULL)
+    {
+        return;
+    }
+        next->state = TASK_RUNNING;
+        os_context_switch(next);
 }

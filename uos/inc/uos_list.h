@@ -18,21 +18,19 @@ typedef struct ListItem
 
 typedef struct list
 {
-    ListItem_t list_end;//链表尾哨兵节点，永远位于链表末端，item_value为0
-    uint32_t item_count;
+    ListItem_t list_end;//链表尾哨兵节点，永远位于链表末端，item_value为oxffffff
+    uint32_t item_count;//链表项数量，维护链表状态
 }List_t;
 
-void list_init(List_t *list);
-void list_item_init(ListItem_t *list);
-void list_insert_tail(List_t *list, ListItem_t *new_item);
-void list_insert_head(List_t *list, ListItem_t *item);
-void list_insert_ordered(List_t *list, ListItem_t *item);
-
-
-void list_remove(ListItem_t *item);
-bool list_is_empty(List_t *list);
-ListItem_t *list_get_head(const List_t *list);
-ListItem_t *list_pop_head(List_t *list);
-uint32_t list_count(const List_t *list);
+void list_init(List_t *list);//初始化链表
+void list_item_init(ListItem_t *list);//初始化链表项
+void list_insert_tail(List_t *list, ListItem_t *new_item);//将新项插入链表末尾
+void list_insert_head(List_t *list, ListItem_t *item);//将新项插入链表头部
+void list_insert_ordered(List_t *list, ListItem_t *item);//按照item_value值从大到小插入链表
+void list_remove(ListItem_t *item);//从链表中移除指定项
+bool list_is_empty(List_t *list);//检查链表是否为空
+ListItem_t *list_get_head(const List_t *list);//获取链表头部项指针
+ListItem_t *list_pop_head(List_t *list);//从链表头部弹出项并返回指针
+uint32_t list_count(const List_t *list);//获取链表项数量
 
 #endif // !LIST_H_

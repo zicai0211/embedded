@@ -46,6 +46,7 @@ int os_task_create(TCB_T *tcb,void (*entry)(void *),void *arg, uint32_t *stack_b
 void os_tick_init(uint32_t ticks_per_sec);
 void os_start(void);
 void yield(void);
+void os_delay(uint32_t ticks);
 
 
 

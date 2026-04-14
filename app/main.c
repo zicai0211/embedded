@@ -25,10 +25,9 @@ void task1(void *arg)
     while(1)
     {
         led_on(led1);
-        busy_delay(8000000);
+        os_delay(1000);
         led_off(led1);
-        busy_delay(8000000);
-
+        os_delay(3000);
     }
 }
 void task2(void *arg)
@@ -37,9 +36,9 @@ void task2(void *arg)
     while(1)
     {
         led_on(led3);
-        busy_delay(8000000);
+        os_delay(3000);
         led_off(led3);
-        busy_delay(8000000);
+        os_delay(1000);
 
     }
 }
@@ -49,7 +48,7 @@ int main(void)
     // led_Init(led3);
 
     os_task_create(&task1_tcb,task1,0,led_stack,128,1);
-    os_task_create(&task2_tcb,task2,0,led_stack1,128,1);
+    os_task_create(&task2_tcb,task2,0,led_stack1,128,2);
     os_start(); // 启动调度器
     while(1);
 
